@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8f7f4">
+<title>Admin | ครัวละมุน</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap');
+:root{--ink:#242923;--muted:#777d72;--paper:#f8f7f4;--white:#fff;--green:#315b43;--green2:#e7eee8;--line:#e9e7e0;--amber:#ac6e1a;--amber2:#fff1de;--red:#b3402f;--red2:#fdecea;--shadow:0 14px 40px #2429230c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px 'IBM Plex Sans Thai',sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+.topbar{height:76px;background:#ffffffdf;border-bottom:1px solid var(--line);display:flex;align-items:center;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.nav{width:min(1160px,calc(100% - 40px));margin:auto;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:11px;align-items:center;font-weight:700;font-size:18px}
+.brand-icon{width:40px;height:40px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-size:21px}
+.brand small{display:block;color:var(--muted);font-size:11px;font-weight:400;margin-top:-3px}
+.nav a{color:var(--green);text-decoration:none;font-size:13px;font-weight:600}
+.nav a:hover{text-decoration:underline}
+
+.wrap{width:min(960px,calc(100% - 36px));margin:36px auto 70px}
+h1{font-size:25px;margin:0}
+.head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}
+.sub{color:var(--muted);font-size:13px;margin:5px 0 0;display:flex;align-items:center;gap:7px}
+.live{width:8px;height:8px;border-radius:50%;background:#4caf6e;flex:none;animation:pulse 2s infinite}
+.live.off{background:var(--red);animation:none}
+.live.paused{background:#c4c6bf;animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #4caf6e88}70%{box-shadow:0 0 0 7px #4caf6e00}100%{box-shadow:0 0 0 0 #4caf6e00}}
+.actions{display:flex;gap:8px;align-items:center}
+.btn-light{border:1px solid var(--line);border-radius:9px;background:#fff;padding:9px 13px;color:var(--ink);transition:.15s;white-space:nowrap}
+.btn-light:hover{border-color:#cfcdc4;background:#fcfcfa}
+.btn-light:active{transform:scale(.96)}
+.btn-light.on{background:var(--green2);border-color:#cddccf;color:var(--green)}
+.spin{display:inline-block}
+.loading .spin{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.stat{background:white;border:1px solid var(--line);border-radius:14px;padding:16px 18px;text-align:left;color:var(--ink);transition:.15s}
+button.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+button.stat.active{border-color:var(--green);box-shadow:0 0 0 3px var(--green2)}
+.stat .lbl{font-size:12px;color:var(--muted);display:block}
+.stat strong{display:block;font-size:24px;margin-top:5px;color:var(--green);font-variant-numeric:tabular-nums}
+
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.chips{display:flex;gap:6px}
+.chip{border:1px solid var(--line);background:white;border-radius:20px;padding:7px 13px;font-size:13px;color:var(--muted);transition:.15s}
+.chip:hover{border-color:#cfcdc4;color:var(--ink)}
+.chip.active{background:var(--green);border-color:var(--green);color:white}
+.chip b{font-weight:600;margin-left:3px;opacity:.75}
+.search{flex:1;min-width:170px;position:relative}
+.search input{width:100%;border:1px solid var(--line);border-radius:10px;background:white;padding:8px 30px 8px 34px;transition:.15s}
+.search input:focus{outline:0;border-color:var(--green);box-shadow:0 0 0 3px var(--green2)}
+.search::before{content:'⌕';position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px}
+.search .clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);font-size:16px;padding:4px 7px;display:none}
+.search.has .clear{display:block}
+select{border:1px solid var(--line);border-radius:10px;background:white;padding:8px 10px;color:var(--ink)}
+
+.orders{display:grid;gap:13px}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:18px 20px;transition:box-shadow .2s,transform .2s,opacity .25s,border-color .2s}
+.card:hover{box-shadow:var(--shadow)}
+.card.fresh{animation:pop .45s ease,glow 2.4s ease}
+.card.leaving{opacity:0;transform:translateX(30px) scale(.98)}
+.card.late{border-left:4px solid var(--red)}
+@keyframes pop{from{opacity:0;transform:translateY(-12px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes glow{0%,60%{border-color:#e0a850;box-shadow:0 0 0 4px #fff1de}100%{box-shadow:none}}
+.order-head{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #f0efeb;cursor:pointer;user-select:none}
+.name{font-weight:700}
+.name span{color:#9b9e96;font-weight:400}
+.meta{font-size:11px;color:var(--muted);margin-top:3px}
+.meta .wait{color:var(--amber);font-weight:600}
+.late .meta .wait{color:var(--red)}
+.right{display:flex;align-items:center;gap:8px}
+.status{border-radius:20px;padding:6px 11px;font-size:11px;font-weight:600;white-space:nowrap}
+.new{background:var(--amber2);color:var(--amber)}
+.done{background:var(--green2);color:var(--green)}
+.caret{color:var(--muted);font-size:11px;transition:transform .2s}
+.collapsed .caret{transform:rotate(-90deg)}
+.items{padding:12px 0;color:#555b52;font-size:13px;line-height:1.9}
+.collapsed .items{display:none}
+.collapsed .order-head{border-bottom:0;padding-bottom:0}
+.collapsed .foot{margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:8px}
+.foot{border-top:1px solid #f0efeb;padding-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.total{font-weight:700;color:var(--green)}
+.total small{font-weight:400;color:var(--muted);font-size:11px;margin-left:5px}
+.btns{display:flex;gap:6px}
+.small{border:1px solid var(--line);background:white;border-radius:8px;padding:7px 11px;font-size:11px;color:var(--ink);transition:.15s}
+.small:hover{border-color:#cfcdc4}
+.small:active{transform:scale(.95)}
+.small:disabled{opacity:.55;cursor:wait}
+.small.complete{background:var(--green);border-color:var(--green);color:white}
+.small.complete:hover{background:#27492f}
+.small.danger{background:var(--red);border-color:var(--red);color:white}
+mark{background:#ffe9a8;color:inherit;border-radius:3px;padding:0 1px}
+
+.empty{text-align:center;background:white;border:1px solid var(--line);border-radius:15px;padding:50px 20px;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);margin:7px}
+.empty button{margin-top:14px}
+.skeleton{height:132px;border-radius:15px;border:1px solid var(--line);background:linear-gradient(90deg,#fff 25%,#f3f2ee 50%,#fff 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+.hint{margin-top:22px;text-align:center;font-size:11px;color:#a3a69d}
+kbd{font:inherit;background:white;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;margin:0 2px}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#263c2d;color:white;border-radius:10px;padding:11px 16px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:10;max-width:calc(100% - 30px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.error{background:var(--red)}
+
+@media(max-width:620px){
+  .nav{width:calc(100% - 28px)}.wrap{margin-top:25px}
+  .stats{gap:8px}.stat{padding:11px 12px}.stat strong{font-size:19px}
+  .head h1{font-size:21px}.head{align-items:start}
+  .btn-light .txt{display:none}
+  .card{padding:15px}.chips{width:100%}.chip{flex:1;padding:7px 6px}
+  .hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar"><nav class="nav">
+  <div class="brand"><div class="brand-icon">คร</div><div>ครัวละมุน<small>ระบบจัดการร้าน · Admin</small></div></div>
+  <a href="/order_food.html">← หน้าสั่งอาหาร</a>
+</nav></header>
+
+<main class="wrap"><section id="dashboard">
+  <div class="head">
+    <div>
+      <h1>จัดการออเดอร์</h1>
+      <p class="sub"><span class="live" id="live"></span><span id="updated">กำลังโหลด…</span></p>
+    </div>
+    <div class="actions">
+      <button class="btn-light" id="soundBtn" title="เสียงแจ้งเตือนออเดอร์ใหม่" aria-pressed="false"></button>
+      <button class="btn-light" id="autoBtn" title="เปิด/หยุดรีเฟรชอัตโนมัติ" aria-pressed="true"></button>
+      <button class="btn-light" id="refreshBtn" title="รีเฟรช (R)"><span class="spin">↻</span> <span class="txt">รีเฟรช</span></button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <button class="stat" data-filter="all" title="แสดงออเดอร์ทั้งหมด"><span class="lbl">ออเดอร์ทั้งหมด</span><strong id="sTotal">0</strong></button>
+    <button class="stat" data-filter="preparing" title="แสดงเฉพาะที่กำลังทำ"><span class="lbl">กำลังทำ</span><strong id="sPrep">0</strong></button>
+    <div class="stat"><span class="lbl">ยอดขายรวม</span><strong id="sSales">฿0</strong></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="chips" role="tablist">
+      <button class="chip" data-filter="all">ทั้งหมด<b id="cAll">0</b></button>
+      <button class="chip" data-filter="preparing">กำลังทำ<b id="cPrep">0</b></button>
+      <button class="chip" data-filter="ready">เสร็จแล้ว<b id="cReady">0</b></button>
+    </div>
+    <div class="search" id="searchBox">
+      <input id="search" type="search" placeholder="ค้นหาชื่อลูกค้า เมนู หรือเลขออเดอร์" autocomplete="off" aria-label="ค้นหาออเดอร์">
+      <button class="clear" id="clearSearch" aria-label="ล้างคำค้นหา">✕</button>
+    </div>
+    <select id="sort" aria-label="เรียงลำดับ">
+      <option value="newest">ใหม่สุดก่อน</option>
+      <option value="oldest">เก่าสุดก่อน</option>
+      <option value="total">ยอดสูงสุดก่อน</option>
+    </select>
+  </div>
+
+  <div class="orders" id="orders"><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="hint"><kbd>/</kbd> ค้นหา <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> สลับตัวกรอง <kbd>R</kbd> รีเฟรช · คลิกหัวการ์ดเพื่อย่อ/ขยาย</div>
+</section></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => '฿' + Number(n).toLocaleString('th-TH');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const isPreparing = o => o.status === 'preparing' || o.status === 'new';
+const REFRESH_MS = 8000, LATE_MIN = 15;
+
+const saved = JSON.parse(localStorage.getItem('lamoonAdmin') || '{}');
+const state = {
+  list: [], loaded: false, signature: '',
+  filter: saved.filter || 'all', sort: saved.sort || 'newest', query: '',
+  sound: !!saved.sound, auto: saved.auto !== false,
+  collapsed: new Set(), fresh: new Set(), known: null, unseen: 0,
+};
+const persist = () => localStorage.setItem('lamoonAdmin', JSON.stringify({filter: state.filter, sort: state.sort, sound: state.sound, auto: state.auto}));
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {...options, headers: {'Content-Type': 'application/json', ...(options.headers || {})}});
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'เกิดข้อผิดพลาด');
+  return result;
+}
+
+/* ---------- helpers ---------- */
+function ago(iso) {
+  const min = Math.max(0, Math.floor((Date.now() - new Date(iso)) / 60000));
+  if (min < 1) return 'เมื่อสักครู่';
+  if (min < 60) return min + ' นาที';
+  if (min < 1440) return Math.floor(min / 60) + ' ชม. ' + (min % 60) + ' นาที';
+  return Math.floor(min / 1440) + ' วัน';
+}
+const isLate = o => isPreparing(o) && Date.now() - new Date(o.createdAt) > LATE_MIN * 60000;
+
+function highlight(text) {
+  const q = state.query.trim();
+  if (!q) return esc(text);
+  const s = String(text), i = s.toLowerCase().indexOf(q.toLowerCase());
+  return i < 0 ? esc(s) : esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.length)) + '</mark>' + esc(s.slice(i + q.length));
+}
+
+function countTo(el, value, format = String) {
+  const from = Number(el.dataset.v || 0);
+  el.dataset.v = value;
+  if (from === value || matchMedia('(prefers-reduced-motion:reduce)').matches) { el.textContent = format(value); return; }
+  const start = performance.now();
+  (function step(now) {
+    const t = Math.min(1, (now - start) / 450), eased = 1 - Math.pow(1 - t, 3);
+    if (Number(el.dataset.v) !== value) return;            // superseded by a newer update
+    el.textContent = format(Math.round(from + (value - from) * eased));
+    if (t < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+let toastTimer;
+function notify(text, isError = false) {
+  const el = $('toast');
+  el.textContent = text;
+  el.classList.toggle('error', isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+let audio;
+function ding() {
+  if (!state.sound) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [880, 1175].forEach((freq, i) => {
+      const osc = audio.createOscillator(), gain = audio.createGain(), at = audio.currentTime + i * 0.16;
+      osc.frequency.value = freq; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.25, at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.35);
+      osc.connect(gain).connect(audio.destination);
+      osc.start(at); osc.stop(at + 0.4);
+    });
+  } catch (e) { /* audio blocked until the first click — ignore */ }
+}
+
+/* ---------- rendering ---------- */
+function visibleOrders() {
+  const q = state.query.trim().toLowerCase();
+  const list = state.list.filter(o => {
+    if (state.filter === 'preparing' && !isPreparing(o)) return false;
+    if (state.filter === 'ready' && isPreparing(o)) return false;
+    if (!q) return true;
+    return o.name.toLowerCase().includes(q) || String(o.id).includes(q.replace('#', '')) || o.items.some(i => i.name.toLowerCase().includes(q));
+  });
+  const time = o => new Date(o.createdAt).getTime();
+  if (state.sort === 'newest') list.sort((a, b) => time(b) - time(a));
+  if (state.sort === 'oldest') list.sort((a, b) => time(a) - time(b));
+  if (state.sort === 'total') list.sort((a, b) => b.total - a.total);
+  return list;
+}
+
+function cardHtml(o) {
+  const prep = isPreparing(o), qty = o.items.reduce((a, i) => a + i.qty, 0);
+  const cls = ['card', state.collapsed.has(o.id) && 'collapsed', state.fresh.has(o.id) && 'fresh', isLate(o) && 'late'].filter(Boolean).join(' ');
+  return `<article class="${cls}" data-id="${o.id}">
+    <div class="order-head" data-act="toggle" title="คลิกเพื่อย่อ/ขยาย">
+      <div>
+        <div class="name">${highlight(o.name)} <span>· #${highlight(String(o.id).slice(-6))}</span></div>
+        <div class="meta">${new Date(o.createdAt).toLocaleString('th-TH', {dateStyle: 'medium', timeStyle: 'short'})}${prep ? ` · <span class="wait" data-since="${esc(o.createdAt)}">รอมาแล้ว ${ago(o.createdAt)}</span>` : ''}</div>
+      </div>
+      <div class="right"><span class="status ${prep ? 'new' : 'done'}">${prep ? 'รับออเดอร์แล้ว · กำลังทำ' : 'อาหารเสร็จแล้ว'}</span><span class="caret">▼</span></div>
+    </div>
+    <div class="items">${o.items.map(i => `<div class="row"><span>${highlight(i.name)} × ${i.qty}</span><span>${money(i.price * i.qty)}</span></div>`).join('')}</div>
+    <div class="foot">
+      <span class="total">รวม ${money(o.total)}<small>${qty} รายการ</small></span>
+      <div class="btns">${prep ? '<button class="small complete" data-act="complete">✓ อาหารเสร็จแล้ว</button>' : ''}<button class="small" data-act="delete">ลบ</button></div>
+    </div>
+  </article>`;
+}
+
+function render() {
+  const all = state.list, prep = all.filter(isPreparing).length;
+  countTo($('sTotal'), all.length);
+  countTo($('sPrep'), prep);
+  countTo($('sSales'), all.reduce((a, o) => a + o.total, 0), money);
+  $('cAll').textContent = all.length;
+  $('cPrep').textContent = prep;
+  $('cReady').textContent = all.length - prep;
+  document.querySelectorAll('[data-filter]').forEach(el => el.classList.toggle('active', el.dataset.filter === state.filter));
+  $('searchBox').classList.toggle('has', !!state.query);
+
+  const list = visibleOrders();
+  let html;
+  if (list.length) html = list.map(cardHtml).join('');
+  else if (!all.length) html = '<div class="empty">📋<strong>ยังไม่มีออเดอร์</strong>เมื่อมีลูกค้าสั่งอาหาร รายการจะแสดงที่นี่</div>';
+  else html = '<div class="empty">🔍<strong>ไม่พบออเดอร์ที่ตรงกับเงื่อนไข</strong>ลองเปลี่ยนคำค้นหาหรือตัวกรอง<br><button class="btn-light" data-act="reset">ล้างตัวกรอง</button></div>';
+  $('orders').innerHTML = html;
+  state.fresh.clear();
+  updateTitle();
+}
+
+function updateTitle() {
+  const prep = state.list.filter(isPreparing).length;
+  document.title = (state.unseen ? `🔔 (${state.unseen}) ออเดอร์ใหม่ · ` : prep ? `(${prep}) ` : '') + 'Admin | ครัวละมุน';
+}
+
+function renderControls() {
+  $('soundBtn').innerHTML = (state.sound ? '🔔' : '🔕') + ' <span class="txt">เสียง</span>';
+  $('soundBtn').classList.toggle('on', state.sound);
+  $('soundBtn').setAttribute('aria-pressed', state.sound);
+  $('autoBtn').innerHTML = (state.auto ? '⏸' : '▶') + ' <span class="txt">' + (state.auto ? 'อัตโนมัติ' : 'หยุดอยู่') + '</span>';
+  $('autoBtn').classList.toggle('on', state.auto);
+  $('autoBtn').setAttribute('aria-pressed', state.auto);
+  $('live').classList.toggle('paused', !state.auto);
+  $('sort').value = state.sort;
+}
+
+/* ---------- data ---------- */
+let lastOk = 0, busy = false;
+async function loadOrders(manual = false) {
+  if (busy) return;
+  busy = true;
+  $('refreshBtn').classList.add('loading');
+  try {
+    const list = await api('/api/v1/orders');
+    lastOk = Date.now();
+    $('live').classList.remove('off');
+    if (state.known) {
+      const added = list.filter(o => !state.known.has(o.id));
+      if (added.length) {
+        added.forEach(o => state.fresh.add(o.id));
+        ding();
+        notify(added.length === 1 ? `🔔 ออเดอร์ใหม่จาก ${added[0].name}` : `🔔 มีออเดอร์ใหม่ ${added.length} รายการ`);
+        if (document.hidden) state.unseen += added.length;
+      }
+    }
+    state.known = new Set(list.map(o => o.id));
+    const signature = JSON.stringify(list);
+    if (signature !== state.signature || !state.loaded) {   // skip re-render when nothing changed
+      state.list = list; state.signature = signature; state.loaded = true;
+      render();
+    }
+    if (manual) notify('อัปเดตข้อมูลแล้ว');
+  } catch (error) {
+    $('live').classList.add('off');
+    if (manual || !state.loaded) notify(error.message === 'Failed to fetch' ? 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้' : error.message, true);
+    if (!state.loaded) $('orders').innerHTML = '<div class="empty">⚠️<strong>โหลดออเดอร์ไม่สำเร็จ</strong>ตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่<br><button class="btn-light" data-act="retry">ลองอีกครั้ง</button></div>';
+  } finally {
+    busy = false;
+    $('refreshBtn').classList.remove('loading');
+    tick();
+  }
+}
+
+function tick() {   // live labels: "updated … ago" and waiting time, without re-rendering cards
+  const sec = Math.floor((Date.now() - lastOk) / 1000);
+  $('updated').textContent = $('live').classList.contains('off') ? 'เชื่อมต่อไม่ได้ · กำลังลองใหม่'
+    : !lastOk ? 'กำลังโหลด…'
+    : (sec < 5 ? 'อัปเดตเมื่อสักครู่' : `อัปเดตเมื่อ ${sec < 60 ? sec + ' วินาที' : Math.floor(sec / 60) + ' นาที'}ที่แล้ว`) + (state.auto ? '' : ' · หยุดรีเฟรชอัตโนมัติ');
+  document.querySelectorAll('.wait[data-since]').forEach(el => {
+    el.textContent = 'รอมาแล้ว ' + ago(el.dataset.since);
+    el.closest('.card').classList.toggle('late', Date.now() - new Date(el.dataset.since) > LATE_MIN * 60000);
+  });
+}
+
+async function completeOrder(id, button) {
+  button.disabled = true;
+  button.textContent = 'กำลังบันทึก…';
+  try {
+    const updated = await api('/api/v1/orders/' + id, {method: 'PATCH', body: JSON.stringify({status: 'ready'})});
+    state.list = state.list.map(o => o.id === id ? updated : o);
+    state.signature = '';
+    const card = button.closest('.card');
+    if (state.filter === 'preparing') { card.classList.add('leaving'); await new Promise(r => setTimeout(r, 250)); }
+    render();
+    notify(`✓ ออเดอร์ของ ${updated.name} เสร็จแล้ว`);
+  } catch (e) { notify(e.message, true); loadOrders(); }
+}
+
+const armed = new Map();   // delete buttons waiting for a second click
+function askDelete(id, button) {
+  if (!armed.has(id)) {
+    button.textContent = 'กดอีกครั้งเพื่อลบ';
+    button.classList.add('danger');
+    armed.set(id, setTimeout(() => { armed.delete(id); if (button.isConnected) { button.textContent = 'ลบ'; button.classList.remove('danger'); } }, 3000));
+    return;
+  }
+  clearTimeout(armed.get(id)); armed.delete(id);
+  deleteOrder(id, button);
+}
+async function deleteOrder(id, button) {
+  button.disabled = true;
+  try {
+    await api('/api/v1/orders/' + id, {method: 'DELETE'});
+    button.closest('.card').classList.add('leaving');
+    await new Promise(r => setTimeout(r, 250));
+    state.list = state.list.filter(o => o.id !== id);
+    state.signature = '';
+    render();
+    notify('ลบออเดอร์แล้ว');
+  } catch (e) { notify(e.message, true); loadOrders(); }
+}
+
+/* ---------- events ---------- */
+function setFilter(filter) { state.filter = filter; persist(); render(); }
+
+$('orders').addEventListener('click', event => {
+  const target = event.target.closest('[data-act]');
+  if (!target) return;
+  const act = target.dataset.act, card = target.closest('.card'), id = card && Number(card.dataset.id);
+  if (act === 'complete') completeOrder(id, target);
+  else if (act === 'delete') askDelete(id, target);
+  else if (act === 'toggle') { state.collapsed.has(id) ? state.collapsed.delete(id) : state.collapsed.add(id); card.classList.toggle('collapsed'); }
+  else if (act === 'reset') { state.query = ''; $('search').value = ''; setFilter('all'); }
+  else if (act === 'retry') loadOrders(true);
+});
+document.querySelectorAll('[data-filter]').forEach(el => el.addEventListener('click', () => setFilter(el.dataset.filter)));
+$('search').addEventListener('input', event => { state.query = event.target.value; render(); });
+$('clearSearch').addEventListener('click', () => { state.query = ''; $('search').value = ''; render(); $('search').focus(); });
+$('sort').addEventListener('change', event => { state.sort = event.target.value; persist(); render(); });
+$('refreshBtn').addEventListener('click', () => loadOrders(true));
+$('soundBtn').addEventListener('click', () => { state.sound = !state.sound; persist(); renderControls(); if (state.sound) ding(); notify(state.sound ? 'เปิดเสียงแจ้งเตือนออเดอร์ใหม่' : 'ปิดเสียงแจ้งเตือน'); });
+$('autoBtn').addEventListener('click', () => { state.auto = !state.auto; persist(); renderControls(); tick(); if (state.auto) loadOrders(); });
+
+document.addEventListener('keydown', event => {
+  const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName);
+  if (event.key === 'Escape' && event.target === $('search')) { state.query = ''; $('search').value = ''; $('search').blur(); render(); return; }
+  if (typing || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (event.key === '/') { event.preventDefault(); $('search').focus(); }
+  else if (event.key.toLowerCase() === 'r') loadOrders(true);
+  else if (event.key === '1') setFilter('all');
+  else if (event.key === '2') setFilter('preparing');
+  else if (event.key === '3') setFilter('ready');
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  state.unseen = 0; updateTitle();
+  if (state.auto) loadOrders();
+});
+
+renderControls();
+loadOrders();
+setInterval(() => { if (state.auto) loadOrders(); }, REFRESH_MS);
+setInterval(tick, 1000);
+</script>
+</body>
+</html>

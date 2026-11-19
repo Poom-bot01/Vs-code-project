@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1273eb">
+<title>ครัวละมุน | สั่งอาหาร</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap');
+:root{--blue:#1273eb;--blue-dark:#0b57c2;--blue-soft:#e8f2fe;--orange:#ff7a1a;--orange-soft:#fff1e5;--green:#12a150;--green-soft:#e4f7ec;--red:#e5484d;--ink:#1c2434;--muted:#6b7588;--bg:#f3f5f8;--white:#fff;--line:#e4e8ee;--shadow:0 10px 30px #1c24341a;--top:64px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px 'IBM Plex Sans Thai',sans-serif;-webkit-tap-highlight-color:transparent}
+body.lock{overflow:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hidden{display:none!important}
+.container{width:min(1140px,calc(100% - 32px));margin:0 auto}
+
+/* top bar */
+.topbar{height:var(--top);background:var(--blue);color:white;position:sticky;top:0;z-index:20;display:flex;align-items:center;box-shadow:0 2px 10px #0b57c233}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700;font-size:17px}
+.brand-icon{width:38px;height:38px;border-radius:11px;background:white;color:var(--blue);display:grid;place-items:center;font-size:19px}
+.brand small{display:block;color:#d6e7ff;font-size:11px;font-weight:400;margin-top:-3px}
+.nav-right{display:flex;gap:8px;align-items:center}
+.nav-btn{position:relative;border:0;border-radius:10px;background:#ffffff26;color:white;padding:8px 13px;font-weight:600;font-size:13px;transition:.15s}
+.nav-btn:hover{background:#ffffff40}
+.nav-btn:active{transform:scale(.95)}
+.dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;border-radius:10px;background:var(--orange);color:white;font-size:11px;display:grid;place-items:center;padding:0 5px;border:2px solid var(--blue)}
+.bump{animation:bump .35s}
+@keyframes bump{40%{transform:scale(1.25)}}
+
+/* shop header */
+.shop{background:white;border-bottom:1px solid var(--line)}
+.cover{height:120px;background:linear-gradient(120deg,#0b57c2,#1273eb 55%,#4aa3ff);position:relative;overflow:hidden}
+.cover::before,.cover::after{content:'';position:absolute;border-radius:50%;background:#ffffff14}
+.cover::before{width:260px;height:260px;right:-60px;top:-120px}
+.cover::after{width:150px;height:150px;right:150px;top:40px}
+.shop-info{display:flex;gap:16px;align-items:flex-start;margin-top:-34px;padding-bottom:18px;position:relative}
+.shop-logo{width:84px;height:84px;border-radius:20px;background:white;border:4px solid white;box-shadow:var(--shadow);display:grid;place-items:center;font-size:44px;flex:none}
+.shop-text{flex:1;min-width:0;padding-top:40px}
+.shop-text h1{margin:0;font-size:23px}
+.shop-text p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.pill{font-size:12px;border-radius:20px;padding:4px 10px;background:var(--bg);color:var(--muted)}
+.pill.open{background:var(--green-soft);color:var(--green);font-weight:600}
+.pill.open::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #12a15088}70%{box-shadow:0 0 0 6px #12a15000}100%{box-shadow:0 0 0 0 #12a15000}}
+
+/* tracking */
+.tracking{margin-top:18px}
+.tracking h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.tracking h2 small{font-weight:400;color:var(--muted);font-size:12px}
+.track-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.track{background:white;border:1px solid var(--line);border-radius:14px;padding:14px 16px;transition:.2s}
+.track.ready{border-color:#a9e2c1;background:linear-gradient(#f3fcf7,#fff 60%)}
+.track.flash{animation:flash 1.6s}
+@keyframes flash{0%,50%{box-shadow:0 0 0 4px #12a15040}100%{box-shadow:none}}
+.track-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.track-top strong{font-size:14px}
+.track-top small{color:var(--muted);font-size:11px;margin-left:5px;font-weight:400}
+.badge-status{font-size:11px;font-weight:600;border-radius:20px;padding:4px 10px;white-space:nowrap;background:var(--orange-soft);color:#c75a08}
+.ready .badge-status{background:var(--green-soft);color:var(--green)}
+.steps{display:flex;align-items:flex-start;margin:14px 0 10px}
+.step{flex:1;text-align:center;font-size:11px;color:var(--muted);position:relative}
+.step i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--line);color:white;margin:0 auto 4px;font-style:normal;font-size:12px;position:relative;z-index:1}
+.step::before{content:'';position:absolute;top:11px;left:-50%;width:100%;height:3px;background:var(--line)}
+.step:first-child::before{display:none}
+.step.on{color:var(--ink);font-weight:600}
+.step.on i{background:var(--blue)}
+.step.on::before{background:var(--blue)}
+.step.now i{background:var(--orange);animation:cook 1.4s infinite}
+.ready .step.on i,.ready .step.on::before{background:var(--green)}
+@keyframes cook{50%{transform:scale(1.18);box-shadow:0 0 0 5px #ff7a1a33}}
+.track-items{font-size:12px;color:var(--muted);line-height:1.6}
+.track-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px}
+.track-foot b{font-size:13px}
+.link-btn{border:1px solid var(--line);background:white;border-radius:8px;padding:5px 10px;font-size:12px;color:var(--blue);font-weight:600;transition:.15s}
+.link-btn:hover{background:var(--blue-soft);border-color:#c5dcfb}
+.link-btn.gray{color:var(--muted);font-weight:400}
+
+/* sticky search + tabs */
+.tabbar{position:sticky;top:var(--top);z-index:10;background:var(--bg);padding:14px 0 10px;margin-top:8px}
+.tabbar-in{display:flex;gap:12px;align-items:center}
+.search{position:relative;flex:0 0 260px}
+.search input{width:100%;border:1px solid var(--line);border-radius:22px;background:white;padding:9px 34px 9px 38px;outline:0;transition:.15s}
+.search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.search::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-52%);color:var(--muted);font-size:18px}
+.search button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);padding:5px 8px;display:none}
+.search.has button{display:block}
+.tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex:1;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:1px solid var(--line);background:white;border-radius:20px;padding:8px 15px;font-size:13px;color:var(--muted);white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--ink);border-color:#cbd3de}
+.tab.active{background:var(--blue);border-color:var(--blue);color:white;font-weight:600}
+
+/* menu */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;align-items:start;padding-bottom:60px}
+.cat{scroll-margin-top:calc(var(--top) + 74px);margin-bottom:22px}
+.cat h2{font-size:18px;margin:6px 0 12px;display:flex;align-items:baseline;gap:8px}
+.cat h2 small{font-size:12px;color:var(--muted);font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.food{background:white;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:12px;cursor:pointer;transition:.18s;position:relative}
+.food:hover{border-color:#bcd6f8;box-shadow:var(--shadow);transform:translateY(-2px)}
+.food.in-cart{border-color:var(--blue)}
+.thumb{width:92px;height:92px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:46px;background:#fdf0df;position:relative;transition:.2s}
+.food:hover .thumb{transform:scale(1.04)}
+.thumb.green{background:#e3f4e4}.thumb.pink{background:#fde6e3}.thumb.gold{background:#fdf0c8}
+.tag{position:absolute;top:-6px;left:-6px;background:var(--orange);color:white;font-size:10px;font-weight:600;border-radius:8px 8px 8px 2px;padding:2px 7px}
+.food-body{flex:1;min-width:0;display:flex;flex-direction:column}
+.food-body h3{margin:0;font-size:15px;line-height:1.35}
+.food-body p{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.food-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}
+.price{font-weight:700;font-size:16px}
+.add{border:0;background:var(--blue);color:white;border-radius:50%;width:32px;height:32px;font-size:20px;line-height:1;transition:.15s;display:grid;place-items:center}
+.add:hover{background:var(--blue-dark)}
+.add:active{transform:scale(.88)}
+.stepper{display:flex;align-items:center;gap:2px;background:var(--blue-soft);border-radius:20px;padding:2px}
+.stepper button{border:0;width:28px;height:28px;border-radius:50%;background:white;color:var(--blue);font-size:17px;line-height:1;font-weight:700;transition:.12s}
+.stepper button:active{transform:scale(.85)}
+.stepper span{min-width:24px;text-align:center;font-weight:700;font-size:14px;color:var(--blue-dark)}
+mark{background:#ffe9a8;color:inherit;border-radius:3px}
+.none{background:white;border:1px dashed var(--line);border-radius:14px;text-align:center;padding:44px 20px;color:var(--muted)}
+.none strong{display:block;color:var(--ink);margin:6px 0 2px}
+.skel{height:118px;border-radius:14px;background:linear-gradient(90deg,#fff 25%,#eef1f5 50%,#fff 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* cart */
+.cart{position:sticky;top:calc(var(--top) + 74px);background:white;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;max-height:calc(100vh - var(--top) - 94px);transition:box-shadow .3s}
+.cart.flash{box-shadow:0 0 0 4px var(--blue-soft),var(--shadow)}
+.cart-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.cart-head h2{font-size:17px;margin:0}
+.cart-head h2 span{font-size:12px;font-weight:600;background:var(--blue-soft);color:var(--blue);border-radius:12px;padding:2px 9px;margin-left:6px}
+.cart-head .close{display:none;border:0;background:var(--bg);border-radius:50%;width:32px;height:32px;color:var(--muted)}
+.cart-body{overflow:auto;padding:0 18px;flex:1}
+.cart-empty{text-align:center;padding:38px 10px;color:var(--muted);font-size:13px}
+.cart-empty span{display:block;font-size:44px;margin-bottom:6px}
+.cart-empty strong{display:block;color:var(--ink);font-size:14px}
+.cart-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #f0f2f5;animation:rowin .25s}
+@keyframes rowin{from{opacity:0;transform:translateX(10px)}}
+.cart-row .em{width:40px;height:40px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:22px;flex:none}
+.cart-row .info{flex:1;min-width:0}
+.cart-row .info b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-row .info small{color:var(--muted);font-size:12px}
+.cart-row .stepper button{width:24px;height:24px;font-size:15px}
+.cart-foot{padding:14px 18px 18px;border-top:1px solid var(--line)}
+.sum{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:5px}
+.sum.total{color:var(--ink);font-size:17px;font-weight:700;margin:8px 0 12px}
+.sum.total span:last-child{color:var(--blue)}
+.field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
+.field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:0;transition:.15s}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.field input.bad{border-color:var(--red);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.submit{width:100%;margin-top:12px;border:0;border-radius:12px;padding:13px;background:var(--blue);color:white;font-weight:700;font-size:15px;display:flex;justify-content:space-between;transition:.15s}
+.submit:hover{background:var(--blue-dark)}
+.submit:active{transform:scale(.98)}
+.submit:disabled{background:#b9c4d4;cursor:not-allowed;justify-content:center}
+.clear{border:0;background:none;color:var(--muted);font-size:12px;padding:4px 6px;border-radius:6px}
+.clear:hover{color:var(--red)}
+.clear.armed{color:white;background:var(--red)}
+
+/* mobile cart bar + backdrop */
+.cartbar{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:15;border:0;border-radius:14px;background:var(--blue);color:white;padding:13px 16px;font-weight:700;justify-content:space-between;align-items:center;box-shadow:0 10px 26px #1273eb66;animation:rise .25s}
+.cartbar .n{background:white;color:var(--blue);border-radius:8px;padding:1px 8px;margin-right:9px;font-size:13px}
+@keyframes rise{from{transform:translateY(80px)}}
+.backdrop{position:fixed;inset:0;background:#1c243480;z-index:30;opacity:0;pointer-events:none;transition:.25s}
+.backdrop.show{opacity:1;pointer-events:auto}
+
+/* dialog */
+.dialog{position:fixed;z-index:40;left:50%;top:50%;width:min(420px,calc(100% - 28px));background:white;border-radius:20px;overflow:hidden;transform:translate(-50%,-46%) scale(.96);opacity:0;pointer-events:none;transition:.22s;box-shadow:0 30px 70px #1c243455}
+.dialog.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.dlg-art{height:170px;display:grid;place-items:center;font-size:92px;background:#fdf0df;position:relative}
+.dlg-art.green{background:#e3f4e4}.dlg-art.pink{background:#fde6e3}.dlg-art.gold{background:#fdf0c8}
+.dlg-close{position:absolute;top:12px;right:12px;border:0;width:34px;height:34px;border-radius:50%;background:#ffffffd9;color:var(--ink);font-size:15px}
+.dlg-body{padding:18px 20px 20px}
+.dlg-body h3{margin:0;font-size:19px}
+.dlg-body p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.dlg-price{font-size:19px;font-weight:700;color:var(--blue);margin-top:10px}
+.dlg-row{display:flex;gap:12px;align-items:center;margin-top:16px}
+.dlg-row .stepper button{width:36px;height:36px;font-size:20px}
+.dlg-row .stepper span{min-width:34px;font-size:16px}
+.dlg-row .submit{margin:0;flex:1}
+.success{text-align:center;padding:30px 24px 24px}
+.check{width:72px;height:72px;border-radius:50%;background:var(--green);color:white;font-size:38px;display:grid;place-items:center;margin:0 auto 14px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(0)}}
+.success h3{margin:0;font-size:20px}
+.success p{color:var(--muted);font-size:13px;margin:6px 0 18px;line-height:1.6}
+.success .submit{justify-content:center}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:white;border-radius:11px;padding:11px 17px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:calc(100% - 28px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.fly{position:fixed;z-index:60;font-size:30px;pointer-events:none;will-change:transform}
+.footer{text-align:center;padding:22px;color:#98a1b0;font-size:11px;border-top:1px solid var(--line);background:white}
+
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+@media(max-width:860px){
+  :root{--top:58px}
+  .layout{display:block;padding-bottom:90px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand small{display:none}
+  .cover{height:90px}
+  .shop-logo{width:70px;height:70px;font-size:36px;border-radius:17px}
+  .shop-text h1{font-size:19px}
+  .tabbar-in{flex-direction:column;align-items:stretch;gap:9px}
+  .search{flex:none}
+  .cat{scroll-margin-top:calc(var(--top) + 118px)}
+  .cart{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:35;max-height:86vh;border-radius:20px 20px 0 0;border:0;transform:translateY(105%);transition:transform .28s cubic-bezier(.3,.9,.3,1)}
+  .cart.open{transform:none}
+  .cart-head .close{display:block}
+  .cartbar.show{display:flex}
+  .dialog{top:auto;bottom:0;left:0;width:100%;border-radius:20px 20px 0 0;transform:translateY(105%);opacity:1}
+  .dialog.show{transform:none}
+  .toast{bottom:84px}
+}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.thumb{width:80px;height:80px;font-size:40px}.track-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="topbar"><nav class="nav container">
+  <div class="brand"><div class="brand-icon">คร</div><div>ครัวละมุน<small>อาหารทำสดด้วยใจ</small></div></div>
+  <div class="nav-right">
+    <button class="nav-btn hidden" id="trackBtn">📋 ออเดอร์ของฉัน<span class="dot" id="trackDot"></span></button>
+    <button class="nav-btn" id="cartBtn" aria-label="ตะกร้า">🛒 ตะกร้า<span class="dot hidden" id="cartDot">0</span></button>
+  </div>
+</nav></header>
+
+<section class="shop">
+  <div class="cover"></div>
+  <div class="container shop-info">
+    <div class="shop-logo">🍲</div>
+    <div class="shop-text">
+      <h1>ครัวละมุน</h1>
+      <p>มื้อนี้ให้เราดูแลนะ · อาหารจานโปรด ปรุงสดใหม่ทุกออเดอร์</p>
+      <div class="pills"><span class="pill open">เปิดรับออเดอร์</span><span class="pill">✦ วัตถุดิบสดใหม่ทุกวัน</span><span class="pill" id="menuCount"></span></div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <section id="trackingSection" class="tracking hidden">
+    <h2>ออเดอร์ของฉัน <small>สถานะอัปเดตให้อัตโนมัติ</small></h2>
+    <div class="track-list" id="trackingOrders"></div>
+  </section>
+
+  <div class="tabbar"><div class="tabbar-in">
+    <div class="search" id="searchBox"><input id="search" type="search" placeholder="ค้นหาเมนูอาหาร..." autocomplete="off" aria-label="ค้นหาเมนู"><button id="clearSearch" aria-label="ล้างคำค้นหา">✕</button></div>
+    <div class="tabs" id="tabs"></div>
+  </div></div>
+
+  <div class="layout">
+    <div id="menu"><div class="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <aside class="cart" id="cart" aria-label="ตะกร้า">
+      <div class="cart-head"><h2>ตะกร้าของคุณ<span id="cartCount">0</span></h2><div><button class="clear hidden" id="clearCart">ล้างตะกร้า</button> <button class="close" id="closeCart" aria-label="ปิด">✕</button></div></div>
+      <div class="cart-body" id="cartBody"></div>
+      <div class="cart-foot hidden" id="cartFoot">
+        <div class="sum"><span>จำนวนทั้งหมด</span><span id="sumQty"></span></div>
+        <div class="sum total"><span>ยอดรวมสุทธิ</span><span id="sumTotal"></span></div>
+        <div class="field"><label for="customerName">ชื่อผู้สั่งอาหาร</label><input id="customerName" maxlength="50" placeholder="เช่น คุณสมชาย" autocomplete="name"></div>
+        <button class="submit" id="submitBtn"><span>สั่งอาหาร</span><span id="submitTotal"></span></button>
+      </div>
+    </aside>
+  </div>
+</main>
+<footer class="footer">ครัวละมุน · ปรุงด้วยใจ เสิร์ฟด้วยความสุข</footer>
+
+<button class="cartbar" id="cartBar"><span><span class="n" id="barQty">0</span>ดูตะกร้า</span><span id="barTotal"></span></button>
+<div class="backdrop" id="backdrop"></div>
+<div class="dialog" id="dialog" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => '฿' + Number(n).toLocaleString('th-TH');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} },
+};
+const MAX_QTY = 99, isMobile = () => matchMedia('(max-width:860px)').matches;
+
+let menu = [], cart = store.get('lamoon_cart', {}), query = '';
+let dialogItem = null, dialogQty = 1;
+if (typeof cart !== 'object' || Array.isArray(cart)) cart = {};
+
+/* ---------- small helpers ---------- */
+let toastTimer;
+function toast(text) {
+  const el = $('toast');
+  el.textContent = text; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+function mark(text) {
+  const q = query.trim(), s = String(text), i = q ? s.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  return i < 0 ? esc(s) : esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.length)) + '</mark>' + esc(s.slice(i + q.length));
+}
+function bump(el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function fly(emoji, from) {   // little emoji that flies from the tapped button to the cart
+  const target = isMobile() ? $('cartBar') : $('cartBtn');
+  if (!from || !from.animate || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const a = from.getBoundingClientRect(), b = target.getBoundingClientRect();
+  if (!b.width) return;
+  const el = document.createElement('div');
+  el.className = 'fly'; el.textContent = emoji;
+  el.style.left = a.left + 'px'; el.style.top = a.top + 'px';
+  document.body.appendChild(el);
+  el.animate([{transform: 'none', opacity: 1}, {transform: `translate(${b.left + b.width / 2 - a.left - 15}px,${b.top - a.top}px) scale(.3)`, opacity: .3}],
+    {duration: 520, easing: 'cubic-bezier(.3,.6,.4,1)'}).onfinish = () => el.remove();
+}
+function ding() {
+  try {
+    const ctx = ding.ctx = ding.ctx || new (window.AudioContext || window.webkitAudioContext)();
+    [784, 1047, 1319].forEach((freq, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain(), at = ctx.currentTime + i * 0.14;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.22, at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.32);
+      osc.connect(gain).connect(ctx.destination); osc.start(at); osc.stop(at + 0.35);
+    });
+  } catch {}
+  if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+}
+
+/* ---------- menu ---------- */
+const stepperHtml = (id, qty) => `<div class="stepper"><button data-act="dec" data-id="${id}" aria-label="ลดจำนวน">−</button><span>${qty}</span><button data-act="inc" data-id="${id}" aria-label="เพิ่มจำนวน">+</button></div>`;
+const controlHtml = x => cart[x.id] ? stepperHtml(x.id, cart[x.id]) : `<button class="add" data-act="inc" data-id="${x.id}" aria-label="เพิ่ม ${esc(x.name)}">+</button>`;
+function foodHtml(x) {
+  return `<article class="food ${cart[x.id] ? 'in-cart' : ''}" data-id="${x.id}" data-act="open" tabindex="0">
+    <div class="thumb ${esc(x.tone)}">${esc(x.emoji)}${x.tag ? `<span class="tag">${esc(x.tag)}</span>` : ''}</div>
+    <div class="food-body"><h3>${mark(x.name)}</h3><p>${mark(x.desc)}</p>
+      <div class="food-bottom"><span class="price">${money(x.price)}</span><span class="ctl">${controlHtml(x)}</span></div></div>
+  </article>`;
+}
+const categories = () => [...new Set(menu.map(x => x.cat))];
+
+function renderMenu() {
+  const q = query.trim().toLowerCase();
+  $('searchBox').classList.toggle('has', !!query);
+  if (!menu.length) return;
+  if (q) {
+    const list = menu.filter(x => (x.name + ' ' + x.desc + ' ' + x.cat).toLowerCase().includes(q));
+    $('menu').innerHTML = list.length
+      ? `<section class="cat"><h2>ผลการค้นหา <small>${list.length} เมนู</small></h2><div class="grid">${list.map(foodHtml).join('')}</div></section>`
+      : `<div class="none">🔍<strong>ไม่พบเมนู “${esc(query.trim())}”</strong>ลองค้นหาด้วยคำอื่น<br><br><button class="link-btn" data-act="clear-search">ดูเมนูทั้งหมด</button></div>`;
+  } else {
+    $('menu').innerHTML = categories().map((c, i) => {
+      const list = menu.filter(x => x.cat === c);
+      return `<section class="cat" id="cat-${i}"><h2>${esc(c)} <small>${list.length} เมนู</small></h2><div class="grid">${list.map(foodHtml).join('')}</div></section>`;
+    }).join('');
+  }
+  spy();
+}
+function renderTabs() {
+  $('tabs').innerHTML = categories().map((c, i) => `<button class="tab" data-cat="${i}">${esc(c)}</button>`).join('');
+}
+function spy() {   // highlight the category currently on screen
+  const tabs = [...document.querySelectorAll('.tab')];
+  if (query.trim()) return tabs.forEach(t => t.classList.remove('active'));
+  const line = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--top')) + (isMobile() ? 130 : 90);
+  let current = 0;
+  document.querySelectorAll('.cat[id]').forEach((s, i) => { if (s.getBoundingClientRect().top <= line) current = i; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4 && tabs.length) current = tabs.length - 1;
+  tabs.forEach((t, i) => {
+    const on = i === current;
+    if (on && !t.classList.contains('active')) t.scrollIntoView({block: 'nearest', inline: 'center'});
+    t.classList.toggle('active', on);
+  });
+}
+
+/* ---------- cart ---------- */
+function setQty(id, qty, from) {
+  const food = menu.find(x => x.id === id);
+  if (!food) return;
+  const before = cart[id] || 0;
+  if (qty > MAX_QTY) { qty = MAX_QTY; toast(`สั่งได้สูงสุด ${MAX_QTY} จานต่อเมนู`); }
+  if (qty <= 0) delete cart[id]; else cart[id] = qty;
+  store.set('lamoon_cart', cart);
+  if ((cart[id] || 0) > before) { fly(food.emoji, from); bump($('cartDot')); bump($('barQty')); }
+  // update just this card so the page does not jump
+  document.querySelectorAll(`.food[data-id="${id}"]`).forEach(card => {
+    card.classList.toggle('in-cart', !!cart[id]);
+    card.querySelector('.ctl').innerHTML = controlHtml(food);
+  });
+  renderCart();
+}
+function cartItems() {
+  return Object.entries(cart).map(([id, qty]) => ({food: menu.find(x => x.id === +id), qty})).filter(x => x.food);
+}
+function renderCart() {
+  const items = cartItems(), qty = items.reduce((a, x) => a + x.qty, 0), total = items.reduce((a, x) => a + x.food.price * x.qty, 0);
+  $('cartCount').textContent = qty;
+  $('cartDot').textContent = qty; $('cartDot').classList.toggle('hidden', !qty);
+  $('barQty').textContent = qty; $('barTotal').textContent = money(total);
+  $('cartBar').classList.toggle('show', qty > 0);
+  $('cartFoot').classList.toggle('hidden', !qty);
+  $('clearCart').classList.toggle('hidden', !qty);
+  $('sumQty').textContent = qty + ' จาน'; $('sumTotal').textContent = money(total); $('submitTotal').textContent = money(total);
+  $('cartBody').innerHTML = items.length
+    ? items.map(({food, qty}) => `<div class="cart-row"><div class="em">${esc(food.emoji)}</div><div class="info"><b>${esc(food.name)}</b><small>${money(food.price * qty)}</small></div>${stepperHtml(food.id, qty)}</div>`).join('')
+    : '<div class="cart-empty"><span>🛒</span><strong>ตะกร้ายังว่างอยู่</strong>แตะ + ที่เมนูเพื่อเริ่มสั่งได้เลย</div>';
+  if (!qty && $('cart').classList.contains('open')) closeCart();
+}
+function openCart() {
+  if (isMobile()) { $('cart').classList.add('open'); showBackdrop(); return; }
+  $('cart').scrollIntoView({block: 'nearest'});
+  $('cart').classList.add('flash'); setTimeout(() => $('cart').classList.remove('flash'), 700);
+}
+function closeCart() { $('cart').classList.remove('open'); hideBackdrop(); }
+function showBackdrop() { $('backdrop').classList.add('show'); document.body.classList.add('lock'); }
+function hideBackdrop() {
+  if ($('cart').classList.contains('open') || $('dialog').classList.contains('show')) return;
+  $('backdrop').classList.remove('show'); document.body.classList.remove('lock');
+}
+
+/* ---------- dialogs ---------- */
+function openItem(id) {
+  dialogItem = menu.find(x => x.id === id);
+  if (!dialogItem) return;
+  dialogQty = 1;
+  renderItemDialog();
+  $('dialog').classList.add('show'); showBackdrop();
+}
+function renderItemDialog() {
+  const x = dialogItem, have = cart[x.id] || 0;
+  $('dialog').innerHTML = `<div class="dlg-art ${esc(x.tone)}">${esc(x.emoji)}<button class="dlg-close" data-act="close" aria-label="ปิด">✕</button></div>
+    <div class="dlg-body"><h3>${esc(x.name)}</h3><p>${esc(x.desc)}${have ? `<br>🛒 มีในตะกร้าแล้ว ${have} จาน` : ''}</p><div class="dlg-price">${money(x.price)}</div>
+    <div class="dlg-row"><div class="stepper"><button data-act="dq" data-d="-1" aria-label="ลดจำนวน">−</button><span>${dialogQty}</span><button data-act="dq" data-d="1" aria-label="เพิ่มจำนวน">+</button></div>
+    <button class="submit" data-act="dadd"><span>เพิ่มลงตะกร้า</span><span>${money(x.price * dialogQty)}</span></button></div></div>`;
+}
+function openSuccess(order) {
+  $('dialog').innerHTML = `<div class="success"><div class="check">✓</div><h3>ส่งออเดอร์ #${order.id} แล้ว</h3>
+    <p>ขอบคุณ ${esc(order.name)} · ยอดรวม ${money(order.total)}<br>ร้านรับเข้าครัวแล้ว เราจะแจ้งเตือนเมื่ออาหารเสร็จ</p>
+    <button class="submit" data-act="track">ติดตามออเดอร์</button></div>`;
+  $('dialog').classList.add('show'); showBackdrop();
+}
+function closeDialog() { $('dialog').classList.remove('show'); dialogItem = null; hideBackdrop(); }
+
+/* ---------- ordering ---------- */
+async function submitOrder() {
+  const input = $('customerName'), name = input.value.trim();
+  if (!name) {
+    input.classList.remove('bad'); void input.offsetWidth; input.classList.add('bad');
+    input.focus(); toast('กรุณากรอกชื่อผู้สั่งอาหาร'); return;
+  }
+  const items = cartItems().map(({food, qty}) => ({menuId: food.id, qty}));
+  if (!items.length) return;
+  const button = $('submitBtn'), original = button.innerHTML;
+  const restore = () => { button.disabled = false; button.innerHTML = original; };   // brings back the total label
+  button.disabled = true; button.textContent = 'กำลังส่งออเดอร์…';
+  try {
+    const response = await fetch('/api/v1/orders', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name, items})});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'ส่งออเดอร์ไม่สำเร็จ');
+    restore();
+    store.set('lamoon_customer_name', name);
+    store.set('lamoon_customer_orders', [result.id, ...trackedIds().filter(id => id !== result.id)].slice(0, 10));
+    cart = {}; store.set('lamoon_cart', cart);
+    closeCart(); renderMenu(); renderCart();
+    openSuccess(result);
+    renderTracking();
+  } catch (error) {
+    toast(error.message === 'Failed to fetch' ? 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่' : error.message);
+    restore();
+  }
+}
+
+/* ---------- order tracking ---------- */
+const lastStatus = {};
+let trackSignature = '';
+function trackedIds() { return store.get('lamoon_customer_orders', []).filter(Number.isInteger).slice(0, 10); }
+function trackHtml(o) {
+  if (o.missing) return `<div class="track" data-id="${o.id}"><div class="track-top"><strong>ออเดอร์ #${o.id}</strong></div><div class="track-items" style="margin-top:8px">ไม่พบออเดอร์ อาจถูกลบแล้ว</div><div class="track-foot"><span></span><button class="link-btn gray" data-act="hide">ซ่อน</button></div></div>`;
+  const ready = o.status === 'ready';
+  const time = new Date(o.createdAt).toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'});
+  return `<div class="track ${ready ? 'ready' : ''}" data-id="${o.id}">
+    <div class="track-top"><strong>ออเดอร์ #${o.id}<small>${time} น.</small></strong><span class="badge-status">${ready ? '✓ อาหารเสร็จแล้ว' : '🍳 กำลังทำ'}</span></div>
+    <div class="steps"><div class="step on"><i>✓</i>รับออเดอร์</div><div class="step on ${ready ? '' : 'now'}"><i>${ready ? '✓' : '2'}</i>กำลังทำ</div><div class="step ${ready ? 'on' : ''}"><i>${ready ? '✓' : '3'}</i>พร้อมรับ</div></div>
+    <div class="track-items">${o.items.map(i => `${esc(i.name)} × ${i.qty}`).join(' · ')}</div>
+    <div class="track-foot"><b>รวม ${money(o.total)}</b><span><button class="link-btn" data-act="reorder">สั่งอีกครั้ง</button>${ready ? ' <button class="link-btn gray" data-act="hide">ซ่อน</button>' : ''}</span></div>
+  </div>`;
+}
+let trackedOrders = [];
+async function renderTracking() {
+  const ids = trackedIds();
+  $('trackingSection').classList.toggle('hidden', !ids.length);
+  $('trackBtn').classList.toggle('hidden', !ids.length);
+  if (!ids.length) { trackSignature = ''; return; }
+  let offline = false;
+  const results = await Promise.all(ids.map(async id => {
+    try {
+      const response = await fetch('/api/v1/orders/' + id);
+      if (response.status === 404) return {id, missing: true};
+      if (!response.ok) throw new Error();
+      return await response.json();
+    } catch { offline = true; return null; }
+  }));
+  if (offline) return;                       // keep the last known state while the server is unreachable
+  const justReady = results.filter(o => !o.missing && o.status === 'ready' && lastStatus[o.id] && lastStatus[o.id] !== 'ready');
+  results.forEach(o => { if (!o.missing) lastStatus[o.id] = o.status; });
+  trackedOrders = results;
+  const active = results.filter(o => !o.missing && o.status !== 'ready').length;
+  $('trackDot').textContent = active; $('trackDot').classList.toggle('hidden', !active);
+  const signature = JSON.stringify(results);
+  if (signature !== trackSignature) {
+    trackSignature = signature;
+    $('trackingOrders').innerHTML = results.map(trackHtml).join('');
+  }
+  if (justReady.length) {
+    ding();
+    toast(`🎉 ออเดอร์ #${justReady.map(o => o.id).join(', #')} เสร็จแล้ว มารับได้เลย`);
+    justReady.forEach(o => { const el = document.querySelector(`.track[data-id="${o.id}"]`); if (el) el.classList.add('flash'); });
+    document.title = '🎉 อาหารเสร็จแล้ว | ครัวละมุน';
+  }
+}
+function reorder(id) {
+  const order = trackedOrders.find(o => o.id === id);
+  if (!order || order.missing) return;
+  let added = 0;
+  order.items.forEach(item => {
+    const food = menu.find(x => x.name === item.name);
+    if (food) { cart[food.id] = Math.min(MAX_QTY, (cart[food.id] || 0) + item.qty); added++; }
+  });
+  if (!added) return toast('เมนูในออเดอร์นี้ไม่มีจำหน่ายแล้ว');
+  store.set('lamoon_cart', cart);
+  renderMenu(); renderCart(); openCart();
+  toast(added < order.items.length ? 'เพิ่มลงตะกร้าแล้ว (บางเมนูไม่มีจำหน่ายแล้ว)' : 'เพิ่มรายการเดิมลงตะกร้าแล้ว');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', event => {
+  const el = event.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, id = Number(el.dataset.id);
+  if (act === 'inc') setQty(id, (cart[id] || 0) + 1, el);
+  else if (act === 'dec') setQty(id, (cart[id] || 0) - 1);
+  else if (act === 'open') openItem(id);
+  else if (act === 'close') closeDialog();
+  else if (act === 'dq') { dialogQty = Math.max(1, Math.min(MAX_QTY, dialogQty + Number(el.dataset.d))); renderItemDialog(); }
+  else if (act === 'dadd') { const item = dialogItem, from = el; closeDialog(); setQty(item.id, (cart[item.id] || 0) + dialogQty, from); toast(`เพิ่ม ${item.name} × ${dialogQty} แล้ว`); }
+  else if (act === 'track') { closeDialog(); $('trackingSection').scrollIntoView({block: 'start'}); }
+  else if (act === 'clear-search') { query = ''; $('search').value = ''; renderMenu(); }
+  else if (act === 'reorder') reorder(Number(el.closest('.track').dataset.id));
+  else if (act === 'hide') {
+    const hideId = Number(el.closest('.track').dataset.id);
+    store.set('lamoon_customer_orders', trackedIds().filter(x => x !== hideId));
+    renderTracking();
+  }
+});
+$('menu').addEventListener('keydown', event => {
+  if (event.key === 'Enter' && event.target.classList.contains('food')) openItem(Number(event.target.dataset.id));
+});
+$('tabs').addEventListener('click', event => {
+  const tab = event.target.closest('.tab');
+  if (!tab) return;
+  if (query) { query = ''; $('search').value = ''; renderMenu(); }
+  const section = $('cat-' + tab.dataset.cat);
+  if (section) section.scrollIntoView({block: 'start'});
+});
+$('search').addEventListener('input', event => { query = event.target.value; renderMenu(); });
+$('clearSearch').addEventListener('click', () => { query = ''; $('search').value = ''; renderMenu(); $('search').focus(); });
+$('cartBtn').addEventListener('click', openCart);
+$('cartBar').addEventListener('click', openCart);
+$('closeCart').addEventListener('click', closeCart);
+$('trackBtn').addEventListener('click', () => $('trackingSection').scrollIntoView({block: 'start'}));
+$('backdrop').addEventListener('click', () => { closeDialog(); closeCart(); });
+$('submitBtn').addEventListener('click', submitOrder);
+$('customerName').addEventListener('input', event => event.target.classList.remove('bad'));
+$('customerName').addEventListener('keydown', event => { if (event.key === 'Enter') submitOrder(); });
+let clearTimer;
+$('clearCart').addEventListener('click', event => {
+  const button = event.currentTarget;
+  if (!button.classList.contains('armed')) {
+    button.classList.add('armed'); button.textContent = 'กดอีกครั้งเพื่อล้าง';
+    clearTimer = setTimeout(() => { button.classList.remove('armed'); button.textContent = 'ล้างตะกร้า'; }, 3000);
+    return;
+  }
+  clearTimeout(clearTimer); button.classList.remove('armed'); button.textContent = 'ล้างตะกร้า';
+  cart = {}; store.set('lamoon_cart', cart); renderMenu(); renderCart(); toast('ล้างตะกร้าแล้ว');
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') { closeDialog(); closeCart(); }
+  else if (event.key === '/' && !/^(INPUT|TEXTAREA)$/.test(event.target.tagName)) { event.preventDefault(); $('search').focus(); }
+});
+addEventListener('scroll', spy, {passive: true});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { document.title = 'ครัวละมุน | สั่งอาหาร'; renderTracking(); } });
+
+/* ---------- start ---------- */
+$('customerName').value = store.get('lamoon_customer_name', '') || '';
+renderCart();
+renderTracking();
+setInterval(renderTracking, 8000);
+fetch('/api/v1/menu')
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+  .then(items => {
+    menu = items;
+    Object.keys(cart).forEach(id => {            // drop saved items that are no longer on the menu
+      const ok = menu.some(x => x.id === +id) && Number.isInteger(cart[id]) && cart[id] > 0;
+      if (!ok) delete cart[id]; else cart[id] = Math.min(MAX_QTY, cart[id]);
+    });
+    $('menuCount').textContent = `🍽 ${menu.length} เมนู`;
+    renderTabs(); renderMenu(); renderCart();
+  })
+  .catch(() => {
+    $('menu').innerHTML = '<div class="none">⚠️<strong>โหลดเมนูไม่สำเร็จ</strong>เชื่อมต่อเซิร์ฟเวอร์ไม่ได้<br><br><button class="link-btn" onclick="location.reload()">ลองอีกครั้ง</button></div>';
+  });
+</script>
+</body>
+</html>
